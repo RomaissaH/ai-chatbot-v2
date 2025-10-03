@@ -3,6 +3,8 @@ import LandingLayout from './components/LandingLayout';
 import ChatLayout from './components/ChatLayout';
 import LandingPage from './pages/LandingPage';
 import ChatPage from './pages/ChatPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import { TranslationProvider } from './i18n/TranslationContext';
 
 function App() {
@@ -14,6 +16,10 @@ function App() {
           <Route path="/" element={<LandingLayout />}>
             <Route index element={<LandingPage />} />
           </Route>
+
+          {/* Authentication Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
 
           {/* Chat Routes */}
           <Route path="/chat" element={<ChatLayout />}>

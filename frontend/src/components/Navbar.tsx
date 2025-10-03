@@ -101,13 +101,27 @@ export default function Navbar() {
 
           {/* Auth Controls */}
           <div className="hidden sm:flex items-center gap-2 ms-2">
-            <Button variant="outline" size="sm" className="hover:shadow-sm">
-              <LogIn className="h-4 w-4 me-1" />
-              {t('nav.signIn')}
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="hover:shadow-sm"
+            >
+              <Link to="/login">
+                <LogIn className="h-4 w-4 me-1" />
+                {t('nav.signIn')}
+              </Link>
             </Button>
-            <Button variant="outline" size="sm" className="hover:shadow-sm">
-              <UserPlus className="h-4 w-4 me-1" />
-              {t('nav.signUp')}
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="hover:shadow-sm"
+            >
+              <Link to="/signup">
+                <UserPlus className="h-4 w-4 me-1" />
+                {t('nav.signUp')}
+              </Link>
             </Button>
           </div>
         </div>
