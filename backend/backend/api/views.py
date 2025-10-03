@@ -1,20 +1,75 @@
-from google import genai
+import google.generativeai as genai
 from django.shortcuts import render, get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from api.models import Chat, ChatMessage
-from api.serializers import ChatMessageSerializer, ChatSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from api.models import Chat, ChatMessage, CustomUser
+from api.serializers import ChatMessageSerializer, ChatSerializer, UserRegistrationSerializer, UserLoginSerializer, UserSerializer
 from django.utils import timezone
 from datetime import timedelta
 from django.conf import settings
 
+# Authentication Views
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register_user(request):
+    """Register a new user"""
+    print(f"Registration data received: {request.data}")
+    serializer = UserRegistrationSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': UserSerializer(user).data,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }, status=status.HTTP_201_CREATED)
+    print(f"Serializer errors: {serializer.errors}")
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_user(request):
+    """Login user and return tokens"""
+    serializer = UserLoginSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': UserSerializer(user).data,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def logout_user(request):
+    """Logout user by blacklisting the refresh token"""
+    try:
+        refresh_token = request.data.get("refresh")
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        return Response({'message': 'Successfully logged out'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def user_profile(request):
+    """Get current user profile"""
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+
+# Chat and AI Views
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
-
-
-# The client gets the API key from the environment variable `GEMINI_API_KEY`.
-client = genai.Client()
 
 '''response = client.models.generate_content(
     model="gemini-2.5-flash", contents="Explain how AI works in a few words"

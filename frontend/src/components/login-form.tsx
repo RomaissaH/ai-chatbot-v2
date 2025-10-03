@@ -4,19 +4,54 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const { t } = useTranslation();
+  const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!formData.email || !formData.password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    const result = await login(formData.email, formData.password);
+
+    if (result.success) {
+      navigate('/chat');
+    } else {
+      setError(result.error || 'Login failed');
+    }
+  };
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">{t('login_welcome')}</h1>
@@ -24,12 +59,18 @@ export function LoginForm({
                   {t('login_subtitle')}
                 </p>
               </div>
+              {error && (
+                <div className="text-red-600 text-sm text-center">{error}</div>
+              )}
               <div className="grid gap-3">
                 <Label htmlFor="email">{t('label_email')}</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder={t('placeholder_email')}
+                  value={formData.email}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -43,10 +84,17 @@ export function LoginForm({
                     {t('forgot_password')}
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
-              <Button type="submit" className="w-full">
-                {t('btn_login')}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Signing in...' : t('btn_login')}
               </Button>
               {/* <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">

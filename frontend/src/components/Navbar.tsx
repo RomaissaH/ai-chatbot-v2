@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Sun, Moon, MessageCircle, LogIn, UserPlus, Globe } from 'lucide-react';
+import {
+  Sun,
+  Moon,
+  MessageCircle,
+  LogIn,
+  UserPlus,
+  Globe,
+  LogOut,
+} from 'lucide-react';
 import { SidebarTrigger } from './ui/sidebar';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
   const { language, setLanguage, t } = useTranslation();
+  const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
   const isChatPage = location.pathname.startsWith('/chat');
 
@@ -101,28 +111,47 @@ export default function Navbar() {
 
           {/* Auth Controls */}
           <div className="hidden sm:flex items-center gap-2 ms-2">
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="hover:shadow-sm"
-            >
-              <Link to="/login">
-                <LogIn className="h-4 w-4 me-1" />
-                {t('nav.signIn')}
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="hover:shadow-sm"
-            >
-              <Link to="/signup">
-                <UserPlus className="h-4 w-4 me-1" />
-                {t('nav.signUp')}
-              </Link>
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  Welcome, {user?.username}
+                </span>
+                <Button
+                  onClick={logout}
+                  variant="outline"
+                  size="sm"
+                  className="hover:shadow-sm"
+                >
+                  <LogOut className="h-4 w-4 me-1" />
+                  {t('nav.signOut')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="hover:shadow-sm"
+                >
+                  <Link to="/login">
+                    <LogIn className="h-4 w-4 me-1" />
+                    {t('nav.signIn')}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="hover:shadow-sm"
+                >
+                  <Link to="/signup">
+                    <UserPlus className="h-4 w-4 me-1" />
+                    {t('nav.signUp')}
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

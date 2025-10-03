@@ -4,7 +4,8 @@
     "chat": "Chat",
     "startChat": "Start Chat",
     "signIn": "Sign In",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+    "signOut": "Sign Out"
   },
   "hero": {
     "title": "Intelligent AI Assistant at Your Service",
