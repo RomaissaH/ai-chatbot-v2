@@ -37,7 +37,18 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
   }, [language]);
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    const keys = key.split('.');
+    let value: unknown = translations[language];
+
+    for (const k of keys) {
+      if (value && typeof value === 'object' && value !== null && k in value) {
+        value = (value as Record<string, unknown>)[k];
+      } else {
+        return key; // Return key if not found
+      }
+    }
+
+    return typeof value === 'string' ? value : key;
   };
 
   const value: TranslationContextType = {
