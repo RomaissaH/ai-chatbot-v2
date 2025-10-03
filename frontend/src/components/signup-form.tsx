@@ -55,12 +55,12 @@ export function SignupForm({
               <Button type="submit" className="w-full">
                 {t('btn_signup')}
               </Button>
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+              {/* <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
                   {t('or_continue_with')}
                 </span>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
+              </div> */}
+              {/* <div className="grid grid-cols-3 gap-4">
                 <Button variant="outline" type="button" className="w-full">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
@@ -88,7 +88,7 @@ export function SignupForm({
                   </svg>
                   <span className="sr-only">{t('signup_with_meta')}</span>
                 </Button>
-              </div>
+              </div> */}
               <div className="text-center text-sm">
                 {t('already_have_account')}{' '}
                 <Link to="/login" className="underline underline-offset-4">
@@ -106,7 +106,7 @@ export function SignupForm({
           </div>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground text-center text-xs text-balance">
+      {/* <div className="text-muted-foreground text-center text-xs text-balance">
         {t('terms_agreement')}{' '}
         <a href="#" className="underline underline-offset-4">
           {t('terms_of_service')}
@@ -116,7 +116,7 @@ export function SignupForm({
           {t('privacy_policy')}
         </a>
         .
-      </div>
+      </div> */}
     </div>
   );
 }
