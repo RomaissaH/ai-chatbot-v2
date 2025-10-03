@@ -1,0 +1,84 @@
+{
+  "nav": {
+    "home": "Home",
+    "chat": "Chat",
+    "startChat": "Start Chat",
+    "signIn": "Sign In",
+    "signUp": "Sign Up"
+  },
+  "hero": {
+    "title": "Intelligent AI Assistant at Your Service",
+    "subtitle": "Experience the future of conversational AI with our advanced chatbot. Get instant answers, creative assistance, and intelligent solutions to your questions.",
+    "cta": {
+      "primary": "Start Chatting",
+      "secondary": "Learn More"
+    }
+  },
+  "features": {
+    "title": "Why Choose Our AI Chatbot?",
+    "subtitle": "Discover the powerful features that make our AI assistant the perfect companion for all your needs.",
+    "intelligent": {
+      "title": "Intelligent Responses",
+      "description": "Advanced AI technology that understands context and provides meaningful, accurate responses to your questions."
+    },
+    "fast": {
+      "title": "Lightning Fast",
+      "description": "Get instant responses with our optimized AI engine. No waiting, no delays - just immediate, helpful answers."
+    },
+    "secure": {
+      "title": "Secure & Private",
+      "description": "Your conversations are protected with enterprise-grade security. We prioritize your privacy and data protection."
+    },
+    "multilingual": {
+      "title": "Multilingual Support",
+      "description": "Communicate in your preferred language. Our AI supports English, Arabic, and many other languages seamlessly."
+    },
+    "available": {
+      "title": "24/7 Availability",
+      "description": "Access your AI assistant anytime, anywhere. We're here to help you around the clock, every day of the year."
+    },
+    "customizable": {
+      "title": "Customizable Experience",
+      "description": "Personalize your chat experience with themes, preferences, and settings that match your workflow and style."
+    }
+  },
+  "about": {
+    "title": "About Our AI Technology",
+    "paragraph1": "Our cutting-edge AI chatbot leverages the latest advances in natural language processing and machine learning to provide you with an exceptional conversational experience.",
+    "paragraph2": "Whether you're looking for quick answers, creative assistance, problem-solving support, or just engaging conversation, our AI is designed to understand and respond to your needs with remarkable accuracy and helpfulness.",
+    "cta": "Try It Now"
+  },
+  "cta": {
+    "title": "Ready to Experience the Future?",
+    "subtitle": "Join thousands of users who have already discovered the power of intelligent conversation.",
+    "button": "Get Started Free"
+  },
+  "login_welcome": "Welcome back",
+  "login_subtitle": "Login to your AI Chatbot account",
+  "signup_welcome": "Create your account",
+  "signup_subtitle": "Join thousands of users and start chatting with AI",
+  "label_name": "Name",
+  "label_email": "Email",
+  "label_password": "Password",
+  "label_confirm_password": "Confirm Password",
+  "placeholder_name": "John Doe",
+  "placeholder_email": "m@example.com",
+  "forgot_password": "Forgot your password?",
+  "btn_login": "Login",
+  "btn_signup": "Sign Up",
+  "or_continue_with": "Or continue with",
+  "login_with_apple": "Login with Apple",
+  "login_with_google": "Login with Google",
+  "login_with_meta": "Login with Meta",
+  "signup_with_apple": "Sign up with Apple",
+  "signup_with_google": "Sign up with Google",
+  "signup_with_meta": "Sign up with Meta",
+  "dont_have_account": "Don't have an account?",
+  "already_have_account": "Already have an account?",
+  "signup_link": "Sign up",
+  "login_link": "Sign in",
+  "terms_agreement": "By clicking continue, you agree to our",
+  "terms_of_service": "Terms of Service",
+  "and": "and",
+  "privacy_policy": "Privacy Policy"
+}

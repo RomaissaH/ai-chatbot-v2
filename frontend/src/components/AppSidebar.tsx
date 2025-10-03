@@ -8,7 +8,7 @@ import {
   MessageSquare,
   Zap,
   MessageSquarePlus,
-} from "lucide-react";
+} from 'lucide-react';
 
 import {
   Sidebar,
@@ -19,40 +19,41 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { Badge } from "@/components/ui/badge";
-import { Link, NavLink } from "react-router-dom";
-import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
+} from '@/components/ui/sidebar';
+import { Badge } from '@/components/ui/badge';
+import { Link, NavLink } from 'react-router-dom';
+import { Button } from './ui/button';
+import { useEffect, useState } from 'react';
 //import { useQuery } from "@tanstack/react-query";
 /*import {
   getSevenDaysChats,
   getTodaysChats,
   getYesterdaysChats,
 } from "@/lib/api";*/
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const mainNav = [
-  { title: "Home", url: "#", icon: Home },
-  { title: "Inbox", url: "#", icon: Inbox },
-  { title: "Calendar", url: "#", icon: Calendar },
-  { title: "Search", url: "#", icon: Search },
-  { title: "Settings", url: "#", icon: Settings },
+  { title: 'Home', url: '#', icon: Home },
+  { title: 'Inbox', url: '#', icon: Inbox },
+  { title: 'Calendar', url: '#', icon: Calendar },
+  { title: 'Search', url: '#', icon: Search },
+  { title: 'Settings', url: '#', icon: Settings },
 ];
 
- const recentChats = [
-   { title: "Fix CI/CD deploy error", url: "#", icon: MessageSquare },
-   { title: "Postgres vs SQLite", url: "#", icon: MessageSquare },
- ]
+const recentChats = [
+  { title: 'Fix CI/CD deploy error', url: '#', icon: MessageSquare },
+  { title: 'Postgres vs SQLite', url: '#', icon: MessageSquare },
+];
 
- const yesterdaysChats = [
-   { title: "Image resize in Django", url: "#", icon: MessageSquare },
- ];
+const yesterdaysChats = [
+  { title: 'Image resize in Django', url: '#', icon: MessageSquare },
+];
 
- const sevenDaysChats = [
-   { title: "Build Todo App", url: "#", icon: MessageSquare },
-   { title: "Navbar with CSS Modules", url: "#", icon: MessageSquare },
- ];
+const sevenDaysChats = [
+  { title: 'Build Todo App', url: '#', icon: MessageSquare },
+  { title: 'Navbar with CSS Modules', url: '#', icon: MessageSquare },
+];
 
 interface IChat {
   id: string;
@@ -97,9 +98,12 @@ export function AppSidebar() {
       setSevenDaysChat(sevenDaysData);
     }
   }, [sevenDaysData]);*/
-
+  const { language } = useTranslation();
   return (
-    <Sidebar className="bg-background text-foreground border-r">
+    <Sidebar
+      className="bg-background text-foreground border-r"
+      side={`${language === 'en' ? 'left' : 'right'}`}
+    >
       <SidebarContent className="flex flex-col justify-between h-full">
         <div>
           {/* Main Nav */}
