@@ -94,7 +94,7 @@ export function ModelSelector({
 
       {/* Dropdown Menu */}
       {isOpen && !disabled && (
-        <div className="absolute top-full left-0 mt-1 w-64 bg-popover border border-border rounded-lg shadow-lg z-50">
+        <div className="absolute bottom-full left-0 mb-1 w-64 bg-popover border border-border rounded-lg shadow-lg z-50">
           <div className="p-1">
             {models.length === 0 ? (
               <div className="px-3 py-2 text-sm text-muted-foreground">

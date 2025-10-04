@@ -3,6 +3,7 @@ import { MessageSquare, MessageSquarePlus } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -159,6 +160,7 @@ export function AppSidebar() {
               </div>
             )}
         </div>
+        <SidebarFooter />
       </SidebarContent>
     </Sidebar>
   );

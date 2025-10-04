@@ -151,33 +151,54 @@ export default function ChatPage() {
             msg.role === 'user' ? (
               <div
                 key={msg.id || `temp-${msg.content.slice(0, 10)}`}
-                className="w-full mx-auto p-4 rounded-xl bg-primary text-primary-foreground self-end"
+                className="flex justify-end"
               >
-                {msg.content}
+                <div className="max-w-[70%] p-4 rounded-2xl bg-primary text-primary-foreground">
+                  {msg.content}
+                </div>
+              </div>
+            ) : msg.content === "Welcome! I'm here to assist you." ? (
+              <div
+                key={msg.id || `temp-${msg.content.slice(0, 10)}`}
+                className="flex items-center justify-center min-h-[60vh] animate-fade-in"
+              >
+                <div className="text-center space-y-4">
+                  <div className="text-6xl animate-bounce">👋</div>
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                    Welcome!
+                  </h2>
+                  <p className="text-lg text-muted-foreground">
+                    I'm here to assist you.
+                  </p>
+                </div>
               </div>
             ) : (
               <div
                 key={msg.id || `temp-${msg.content.slice(0, 10)}`}
-                className="prose dark:prose-invert max-w-none bg-muted text-foreground p-4 rounded-lg shadow mb-4"
+                className="flex justify-start"
               >
-                <div className="whitespace-pre-wrap">{msg.content}</div>
-                {msg.model_used && !msg.isTemporary && (
-                  <div className="text-xs text-muted-foreground mt-2 border-t pt-2">
-                    Model: {msg.model_used}
-                    {msg.tokens_used && ` • Tokens: ${msg.tokens_used}`}
-                  </div>
-                )}
+                <div className="max-w-[70%] prose dark:prose-invert bg-muted text-foreground p-4 rounded-2xl shadow">
+                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                  {msg.model_used && !msg.isTemporary && (
+                    <div className="text-xs text-muted-foreground mt-2 border-t pt-2">
+                      Model: {msg.model_used}
+                      {msg.tokens_used && ` • Tokens: ${msg.tokens_used}`}
+                    </div>
+                  )}
+                </div>
               </div>
             )
           )}
 
           {isLoading && (
-            <div className="w-full mx-auto p-4 rounded-xl bg-muted">
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                <span className="text-sm text-muted-foreground">
-                  AI is thinking...
-                </span>
+            <div className="flex justify-start">
+              <div className="max-w-[70%] p-4 rounded-2xl bg-muted">
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  <span className="text-sm text-muted-foreground">
+                    AI is thinking...
+                  </span>
+                </div>
               </div>
             </div>
           )}
@@ -185,21 +206,21 @@ export default function ChatPage() {
         </div>
 
         {/* Input */}
-        <div className="border-t p-4 sticky bottom-0 z-50 bg-background text-foreground">
-          <div className="max-w-2xl mx-auto space-y-3">
-            {/* Model Selector */}
-            <div className="flex justify-start">
+        <div className="border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="max-w-3xl mx-auto p-4">
+            {/* Model Selector - Positioned at inline-start (left in LTR, right in RTL) */}
+            <div className="flex justify-start items-center mb-3">
               <ModelSelector
                 selectedModel={selectedModel}
                 onModelChange={setSelectedModel}
-                className="w-64"
+                className="w-auto"
               />
             </div>
 
             {/* Message Input */}
-            <div className="flex items-center gap-4">
+            <div className="relative">
               <Textarea
-                placeholder="Send a message..."
+                placeholder="Message AI..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -208,17 +229,22 @@ export default function ChatPage() {
                     handleSend();
                   }
                 }}
-                className="flex-1 resize-none min-h-[80px] max-h-[200px] rounded-md border border-input bg-muted/40 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 placeholder:text-muted-foreground shadow-sm transition"
+                className="w-full resize-none min-h-[56px] max-h-[200px] rounded-3xl border border-input/50 bg-background px-5 py-4 pe-12 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent placeholder:text-muted-foreground/60 transition-all"
               />
 
               <button
                 onClick={handleSend}
                 disabled={isLoading || !input.trim()}
-                className="p-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute end-2 bottom-2 p-2.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
               >
-                <SendHorizonalIcon size={18} className="cursor-pointer" />
+                <SendHorizonalIcon size={18} />
               </button>
             </div>
+
+            {/* Helper text */}
+            <p className="text-xs text-muted-foreground/60 text-center mt-2">
+              Press Enter to send, Shift + Enter for new line
+            </p>
           </div>
         </div>
       </div>
