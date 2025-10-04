@@ -16,6 +16,7 @@ from api.serializers import (
     UserLoginSerializer, UserSerializer, UserProfileSerializer, AIModelSerializer
 )
 from api.services.ai_service import ai_service_manager
+from api.utils.error_messages import ErrorMessages, get_user_language
 from django.utils import timezone
 from datetime import timedelta
 from django.conf import settings
@@ -31,34 +32,56 @@ logger = logging.getLogger(__name__)
 @permission_classes([AllowAny])
 def register_user(request):
     """Register a new user"""
+    user_language = get_user_language(request)
     print(f"Registration data received: {request.data}")
+    
     serializer = UserRegistrationSerializer(data=request.data)
     if serializer.is_valid():
-        user = serializer.save()
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'user': UserSerializer(user).data,
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }, status=status.HTTP_201_CREATED)
-    print(f"Serializer errors: {serializer.errors}")
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'user': UserSerializer(user).data,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(f"User registration error: {e}")
+            error_response = ErrorMessages.create_error_response('server_error', user_language)
+            return Response(error_response, status=500)
+    else:
+        print(f"Serializer errors: {serializer.errors}")
+        # Check for specific validation errors
+        if 'email' in serializer.errors and any('already exists' in str(error) for error in serializer.errors['email']):
+            error_response = ErrorMessages.create_error_response('user_already_exists', user_language)
+        else:
+            error_response = ErrorMessages.create_error_response('validation_error', user_language, details=serializer.errors)
+        return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
     """Login user and return tokens"""
+    user_language = get_user_language(request)
     serializer = UserLoginSerializer(data=request.data)
+    
     if serializer.is_valid():
-        user = serializer.validated_data['user']
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'user': UserSerializer(user).data,
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = serializer.validated_data['user']
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'user': UserSerializer(user).data,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Login error: {e}")
+            error_response = ErrorMessages.create_error_response('server_error', user_language)
+            return Response(error_response, status=500)
+    else:
+        error_response = ErrorMessages.create_error_response('invalid_credentials', user_language)
+        return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -124,7 +147,7 @@ def createChatTitle(user_message, model_name='gemini'):
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])  # Allow anyone to see available models
 def available_models(request):
     """Get list of available AI models"""
     try:
@@ -133,37 +156,69 @@ def available_models(request):
         return Response(serializer.data)
     except Exception as e:
         logger.error(f"Error fetching available models: {e}")
-        return Response({'error': 'Failed to fetch available models'}, status=500)
+        language = get_user_language(request)
+        error_response = ErrorMessages.create_error_response('model_fetch_failed', language)
+        return Response(error_response, status=500)
 
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def prompt_gpt(request):
-    chat_id = request.data.get("chat_id")
-    content = request.data.get("content")
-    model_type = request.data.get("model_type", "gemini")
-    language = request.data.get("language", "en")
+    try:
+        logger.info(f"=== CHAT REQUEST START ===")
+        logger.info(f"Received chat request from user: {request.user.username if request.user else 'Anonymous'}")
+        logger.info(f"Request data: {request.data}")
+        
+        chat_id = request.data.get("chat_id")
+        content = request.data.get("content")
+        model_type = request.data.get("model_type", "gemini")
+        language = request.data.get("language", "en")
+
 
     if not chat_id or not content:
         return Response({"error": "Chat ID was not provided."}, status=400)
 
-    if not content:
-        return Response({"error": "There was no prompt passed."}, status=400)
+
+        # Basic validation first
+        if not chat_id:
+            return Response({'error': 'Chat ID is required.'}, status=400)
+
+        if not content:
+            return Response({'error': 'Message content is required.'}, status=400)
+
+        # Get user's preferred language
+        user_language = get_user_language(request)
+        logger.info(f"User language detected: {user_language}")
+        
+    except Exception as e:
+        logger.error(f"CRITICAL ERROR in prompt_gpt initial setup: {e}")
+        logger.error(f"Exception type: {type(e).__name__}")
+        logger.error(f"Exception args: {e.args}")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        return Response({'error': f'Server error during initialization: {str(e)}'}, status=500)
 
     # Get or create chat for the authenticated user
-    chat, created = Chat.objects.get_or_create(
-        id=chat_id, 
-        defaults={
-            'user': request.user,
-            'model_type': model_type,
-            'language': language
-        }
-    )
+    try:
+        logger.info("Starting chat processing...")
+        
+        chat, created = Chat.objects.get_or_create(
+            id=chat_id, 
+            defaults={
+                'user': request.user,
+                'model_type': model_type,
+                'language': language
+            }
+        )
+        logger.info(f"Chat {'created' if created else 'retrieved'}: {chat.id}")
+    except Exception as e:
+        logger.error(f"Error creating/retrieving chat: {e}")
+        return Response({'error': f'Chat creation error: {str(e)}'}, status=500)
     
     # Ensure the chat belongs to the current user
     if chat.user != request.user:
-        return Response({"error": "Access denied to this chat."}, status=403)
+        return Response({'error': 'Access denied to this chat.'}, status=403)
 
     # Generate title if it's a new chat or doesn't have one
     if created or not chat.title:
@@ -173,45 +228,74 @@ def prompt_gpt(request):
         chat.save()
 
     # Create user message
-    ChatMessage.objects.create(role="user", chat=chat, content=content)
+    try:
+        user_message = ChatMessage.objects.create(role="user", chat=chat, content=content)
+        logger.info(f"User message created: {user_message.id}")
+    except Exception as e:
+        logger.error(f"Error creating user message: {e}")
+        return Response({'error': f'Message creation error: {str(e)}'}, status=500)
 
     # Get conversation history
-    chat_messages = chat.messages.order_by("created_at")
-    openai_messages = [{"role": msg.role, "content": msg.content} for msg in chat_messages]
+    try:
+        chat_messages = chat.messages.order_by("created_at")
+        openai_messages = [{"role": msg.role, "content": msg.content} for msg in chat_messages]
+        logger.info(f"Retrieved {len(openai_messages)} messages for context")
+    except Exception as e:
+        logger.error(f"Error retrieving chat messages: {e}")
+        return Response({'error': f'Message retrieval error: {str(e)}'}, status=500)
 
     try:
         # Use the AI service manager to get the appropriate provider
+        logger.info(f"Getting provider for model: {model_type}")
         provider = ai_service_manager.get_provider(model_type)
+        logger.info(f"Provider obtained: {provider.__class__.__name__}")
+        
+        logger.info(f"Sending {len(openai_messages)} messages to AI provider")
         response = provider.generate_response(openai_messages)
+        logger.info(f"AI provider response received: {response.keys() if isinstance(response, dict) else 'Invalid response'}")
         
         if 'error' in response:
-            return Response({"error": response['error']}, status=500)
+            error_msg = response['error']
+            logger.error(f"AI service returned error: {error_msg}")
+            return Response({'error': f'AI service error: {error_msg}'}, status=500)
         
         reply = response.get('content', 'Sorry, I could not generate a response.')
         tokens_used = response.get('tokens_used', 0)
         model_used = response.get('model_used', model_type)
         
         # Create assistant message with metadata
-        ChatMessage.objects.create(
-            role="assistant", 
-            content=reply, 
-            chat=chat,
-            model_used=model_used,
-            tokens_used=tokens_used
-        )
+        try:
+            assistant_message = ChatMessage.objects.create(
+                role="assistant", 
+                content=reply, 
+                chat=chat,
+                model_used=model_used,
+                tokens_used=tokens_used
+            )
+            logger.info(f"Assistant message created: {assistant_message.id}")
+        except Exception as e:
+            logger.error(f"Error creating assistant message: {e}")
+            # Still return the response even if message saving fails
         
-        return Response({
+        response_data = {
             "reply": reply,
             "chat_id": str(chat.id),
             "model_used": model_used,
             "tokens_used": tokens_used
-        }, status=status.HTTP_201_CREATED)
+        }
+        logger.info(f"Sending response: {response_data}")
+        return Response(response_data, status=status.HTTP_201_CREATED)
         
     except ValueError as e:
-        return Response({"error": str(e)}, status=400)
+        # Model not supported error
+        logger.warning(f"Model not supported: {e}")
+        return Response({'error': f'Model not supported: {str(e)}'}, status=400)
     except Exception as e:
-        logger.error(f"AI service error: {e}")
-        return Response({"error": f"AI service error: {str(e)}"}, status=500)
+        logger.error(f"CRITICAL ERROR in chat processing: {e}")
+        logger.error(f"Exception type: {type(e).__name__}")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        return Response({'error': f'Chat processing error: {str(e)}'}, status=500)
 
 
 @api_view(["GET"])

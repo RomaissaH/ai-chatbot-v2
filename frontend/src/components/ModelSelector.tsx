@@ -5,6 +5,8 @@
 import { useState, useEffect } from 'react';
 import { ChevronDownIcon, Bot } from 'lucide-react';
 import { useAvailableModels } from '@/hooks/api/useChat';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import type { AIModel } from '@/services/types';
 
 interface ModelSelectorProps {
@@ -22,6 +24,8 @@ export function ModelSelector({
 }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { data: models = [], isLoading, error } = useAvailableModels();
+  const { t } = useTranslation();
+  const { getErrorMessage } = useErrorHandler();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -44,10 +48,11 @@ export function ModelSelector({
   };
 
   if (error) {
+    const errorMessage = getErrorMessage(error);
     return (
       <div className="flex items-center gap-2 text-red-500 text-sm">
         <Bot className="w-4 h-4" />
-        <span>Failed to load models</span>
+        <span>{errorMessage}</span>
       </div>
     );
   }
@@ -68,7 +73,7 @@ export function ModelSelector({
         <Bot className="w-4 h-4" />
 
         {isLoading ? (
-          <span>Loading...</span>
+          <span>{t('models.loading_models')}</span>
         ) : selectedModelData ? (
           <>
             <span>{selectedModelData.display_name}</span>
@@ -77,7 +82,7 @@ export function ModelSelector({
             </span>
           </>
         ) : (
-          <span>Select Model</span>
+          <span>{t('models.select_model')}</span>
         )}
 
         <ChevronDownIcon
@@ -93,7 +98,7 @@ export function ModelSelector({
           <div className="p-1">
             {models.length === 0 ? (
               <div className="px-3 py-2 text-sm text-muted-foreground">
-                No models available
+                {t('models.no_models')}
               </div>
             ) : (
               models.map((model) => (

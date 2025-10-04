@@ -81,5 +81,44 @@
   "terms_agreement": "By clicking continue, you agree to our",
   "terms_of_service": "Terms of Service",
   "and": "and",
-  "privacy_policy": "Privacy Policy"
+  "privacy_policy": "Privacy Policy",
+  "models": {
+    "title": "AI Models",
+    "select_model": "Select Model",
+    "available_models": "Available Models",
+    "no_models": "No models available",
+    "loading_models": "Loading models...",
+    "failed_to_load": "Failed to load models",
+    "gemini": "Google Gemini",
+    "gpt4": "OpenAI GPT-4",
+    "claude": "Anthropic Claude",
+    "deepseek": "DeepSeek"
+  },
+  "chat": {
+    "title": "Chat",
+    "new_chat": "New Chat",
+    "send_message": "Send message",
+    "type_message": "Type your message...",
+    "generating": "Generating response...",
+    "retry": "Retry",
+    "copy": "Copy",
+    "delete": "Delete"
+  },
+  "errors": {
+    "chat_id_required": "Chat ID is required.",
+    "content_required": "Message content is required.",
+    "access_denied_chat": "You do not have permission to access this chat.",
+    "model_not_supported": "The selected AI model is not supported or available.",
+    "ai_service_error": "AI service is temporarily unavailable. Please try again.",
+    "api_key_invalid": "AI service configuration error. Please contact support.",
+    "network_error": "Network error occurred. Please check your connection and try again.",
+    "rate_limit_exceeded": "Too many requests. Please wait a moment and try again.",
+    "model_fetch_failed": "Failed to fetch available models.",
+    "authentication_required": "Authentication is required for this action.",
+    "invalid_credentials": "Invalid email or password.",
+    "user_already_exists": "A user with this email already exists.",
+    "validation_error": "Please check your input and try again.",
+    "server_error": "An unexpected server error occurred. Please try again later.",
+    "generic_error": "An error occurred. Please try again."
+  }
 }

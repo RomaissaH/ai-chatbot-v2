@@ -32,12 +32,23 @@ export interface AIModel {
 }
 
 export interface ChatMessage {
-  id: string;
+  id: number;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  model_used?: string;
-  tokens_used?: number;
+  model_used?: string | null;
+  tokens_used?: number | null;
   created_at: string;
+}
+
+// Local message interface for frontend use (before API response)
+export interface LocalMessage {
+  id?: number;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  model_used?: string | null;
+  tokens_used?: number | null;
+  created_at?: string;
+  isTemporary?: boolean; // For messages not yet saved to API
 }
 
 export interface Chat {

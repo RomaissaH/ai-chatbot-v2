@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class GeminiProvider(AIProvider):
-    """Google Gemini AI Provider"""
+    """Google Gemini API Provider"""
     
-    def __init__(self, api_key: str, model_name: str = "gemini-1.5-flash"):
+    def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
         super().__init__(api_key, model_name)
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(model_name)
@@ -24,11 +24,14 @@ class GeminiProvider(AIProvider):
         """Create provider instance with API key from settings"""
         api_key = settings.GEMINI_API_KEY
         # Map model names to actual Gemini model names
+        # For free tier, use 'gemini-2.5-flash' which is available in v1beta
         model_mapping = {
-            'gemini': 'gemini-1.5-flash',
-            'gemini-pro': 'gemini-1.5-pro',
+            'gemini': 'gemini-2.5-flash',  # Free tier model available in v1beta
+            'gemini-pro': 'gemini-2.5-flash',
+            'gemini-2.5-flash': 'gemini-2.5-flash',
         }
-        actual_model = model_mapping.get(model_name, 'gemini-1.5-flash')
+        actual_model = model_mapping.get(model_name, 'gemini-2.5-flash')
+        logger.info(f"Creating Gemini provider with model: {actual_model}")
         return cls(api_key, actual_model)
     
     def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
@@ -46,11 +49,16 @@ class GeminiProvider(AIProvider):
             # Convert messages to Gemini format
             context = self._format_messages_for_gemini(messages)
             
+            logger.info(f"Sending request to Gemini model: {self.model_name}")
+            logger.info(f"Message count: {len(messages)}, Context length: {len(context)} chars")
+            
             # Generate response
             response = self.model.generate_content(context)
             
             # Extract response text
             content = response.text if response.text else "Sorry, I couldn't generate a response."
+            
+            logger.info(f"Successfully received response from Gemini, length: {len(content)} chars")
             
             # Calculate approximate token usage (Gemini doesn't provide exact counts)
             tokens_used = self._estimate_tokens(context + content)
@@ -64,6 +72,10 @@ class GeminiProvider(AIProvider):
             
         except Exception as e:
             logger.error(f"Gemini API error: {e}")
+            logger.error(f"Model used: {self.model_name}")
+            logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return {
                 'content': "I'm having trouble connecting to the AI service. Please try again.",
                 'tokens_used': 0,
@@ -107,4 +119,4 @@ class GeminiProvider(AIProvider):
     
     @property
     def supported_models(self) -> List[str]:
-        return ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+        return ["gemini-2.5-flash"]  # Free tier model available in v1beta
