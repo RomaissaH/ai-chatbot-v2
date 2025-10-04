@@ -60,6 +60,7 @@ class AIServiceManager:
             from .gemini_provider import GeminiProvider
             from .openai_provider import OpenAIProvider
             from .anthropic_provider import AnthropicProvider
+            from .groq_provider import GroqProvider
             
             # Initialize providers (API keys will be loaded from settings)
             from django.conf import settings
@@ -73,6 +74,9 @@ class AIServiceManager:
                 
             if hasattr(settings, 'ANTHROPIC_API_KEY') and settings.ANTHROPIC_API_KEY:
                 self._providers['claude'] = AnthropicProvider
+            
+            if hasattr(settings, 'GROQ_API_KEY') and settings.GROQ_API_KEY:
+                self._providers['groq'] = GroqProvider
                 
         except ImportError as e:
             logger.warning(f"Failed to import provider: {e}")
@@ -124,7 +128,8 @@ class AIServiceManager:
             'gpt-4': 'OpenAI GPT-4',
             'claude': 'Anthropic Claude',
             'deepseek': 'DeepSeek',
-            'llama': 'Meta Llama'
+            'llama': 'Meta Llama',
+            'groq': 'Groq (Llama 3.3)'
         }
         return display_names.get(model_name, model_name.title())
     

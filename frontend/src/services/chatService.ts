@@ -70,25 +70,9 @@ export const getAvailableModels = async (): Promise<AIModel[]> => {
 };
 
 /**
- * Get today's chats
+ * Get chat history for the last 30 days
  */
-export const getTodaysChats = async (): Promise<Chat[]> => {
-  const response = await api.get('/chats/today/');
-  return response.data;
-};
-
-/**
- * Get yesterday's chats
- */
-export const getYesterdaysChats = async (): Promise<Chat[]> => {
-  const response = await api.get('/chats/yesterday/');
-  return response.data;
-};
-
-/**
- * Get this week's chats
- */
-export const getWeekChats = async (): Promise<Chat[]> => {
-  const response = await api.get('/chats/week/');
+export const getChatHistory = async (): Promise<Chat[]> => {
+  const response = await api.get('/chats/history/');
   return response.data;
 };

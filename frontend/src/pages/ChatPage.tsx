@@ -18,10 +18,9 @@ export default function ChatPage() {
     if (chat_uid) {
       setChatID(chat_uid);
     } else {
+      // Generate a new UUID for new chats
       setChatID(crypto.randomUUID());
     }
-
-    console.log('chat id changed!!');
   }, [chat_uid]);
 
   const [messages, setMessages] = useState<LocalMessage[]>([
@@ -79,8 +78,9 @@ export default function ChatPage() {
 
     console.log('Sending message:', { chatID, input, selectedModel });
 
-    if (location.pathname == '/chat' || location.pathname == '/chat/new') {
-      navigate(`/chat/${chatID}`);
+    // Navigate to specific chat URL if we're on a generic chat route
+    if (location.pathname === '/chat' || location.pathname === '/chat/new') {
+      navigate(`/chat/${chatID}`, { replace: true });
     }
 
     const newMessage: LocalMessage = {

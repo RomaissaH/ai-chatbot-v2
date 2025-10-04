@@ -32,6 +32,7 @@ class Chat(models.Model):
         ('llama', 'Meta Llama'),
         ('gpt-4', 'OpenAI GPT-4'),
         ('claude', 'Anthropic Claude'),
+        ('groq', 'Groq (Llama 3.3)'),
     ]
     
     LANGUAGE_CHOICES = [

@@ -17,11 +17,8 @@ urlpatterns = [
     path('prompt/', views.prompt_gpt, name='prompt_gpt'),
     path('chats/', views.user_chats, name='user_chats'),
     path('chats/create/', views.create_chat, name='create_chat'),
+    # Chat history - must come before the generic <str:pk> pattern
+    path('chats/history/', views.chat_history, name='chat_history'),
     path('chats/<str:pk>/', views.delete_chat, name='delete_chat'),
     path('chats/<str:pk>/messages/', views.get_chat_messages, name='get_chat_messages'),
-    
-    # Chat history by time period
-    path('chats/today/', views.todays_chat, name='todays_chat'),
-    path('chats/yesterday/', views.yesterdays_chat, name='yesterdays_chat'),
-    path('chats/week/', views.seven_days_chat, name='seven_days_chat'),
 ]

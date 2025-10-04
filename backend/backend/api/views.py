@@ -113,11 +113,6 @@ def user_profile(request):
 
 
 # Chat and AI Views
-now = timezone.now()
-today = now.date()
-yesterday = today - timedelta(days=1)
-seven_days_ago = today - timedelta(days=7)
-thirty_days_ago = today - timedelta(days=30)
 
 def build_gemini_history(chat):
     messages = chat.messages.order_by("created_at")[:10]  # last 10 messages
@@ -311,7 +306,7 @@ def user_chats(request):
     page_size = int(request.GET.get('page_size', 20))
     page = int(request.GET.get('page', 1))
     
-    chats = Chat.objects.filter(user=request.user).order_by('-updated_at')
+    chats = Chat.objects.filter(user=request.user).select_related('user').prefetch_related('messages').order_by('-updated_at')
     
     # Simple pagination
     start = (page - 1) * page_size
@@ -332,38 +327,26 @@ def user_chats(request):
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def todays_chat(request):
-    chats = Chat.objects.filter(
-        user=request.user, 
-        created_at__date=today
-    ).order_by("-updated_at")[:10]
-    serializer = ChatSerializer(chats, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def yesterdays_chat(request):
-    chats = Chat.objects.filter(
-        user=request.user, 
-        created_at__date=yesterday
-    ).order_by("-updated_at")[:10]
-    serializer = ChatSerializer(chats, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def seven_days_chat(request):
-    chats = Chat.objects.filter(
-        user=request.user,
-        created_at__lt=yesterday, 
-        created_at__gte=seven_days_ago
-    ).order_by("-updated_at")[:10]
-    serializer = ChatSerializer(chats, many=True)
-    return Response(serializer.data)
+def chat_history(request):
+    """Get all user's chats with messages for the last 30 days"""
+    try:
+        now = timezone.now()
+        thirty_days_ago = now - timedelta(days=30)
+        
+        # Get chats from the last 30 days that have at least one message
+        chats = Chat.objects.filter(
+            user=request.user,
+            created_at__gte=thirty_days_ago,
+            messages__isnull=False
+        ).select_related('user').prefetch_related('messages').order_by("-updated_at").distinct()
+        
+        serializer = ChatSerializer(chats, many=True)
+        logger.info(f"Retrieved {len(serializer.data)} chats for history for user {request.user.username}")
+        return Response(serializer.data)
+    
+    except Exception as e:
+        logger.error(f"Error retrieving chat history for user {request.user.username}: {e}")
+        return Response({'error': 'Failed to retrieve chat history'}, status=500)
 
 
 @api_view(['POST'])
