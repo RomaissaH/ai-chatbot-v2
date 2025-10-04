@@ -1,4 +1,7 @@
 import google.generativeai as genai
+#import google.generativeai as genai
+import os
+
 from django.shortcuts import render, get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -90,6 +93,13 @@ yesterday = today - timedelta(days=1)
 seven_days_ago = today - timedelta(days=7)
 thirty_days_ago = today - timedelta(days=30)
 
+def build_gemini_history(chat):
+    messages = chat.messages.order_by("created_at")[:10]  # last 10 messages
+    history = "\n".join([f"{m.role.capitalize()}: {m.content}" for m in messages])
+    if "Assistant:" not in history:
+        history = "Assistant: You are a helpful assistant.\n" + history
+    return history
+
 
 def createChatTitle(user_message, model_name='gemini'):
     """Generate a chat title using AI"""
@@ -132,7 +142,7 @@ def prompt_gpt(request):
     model_type = request.data.get("model_type", "gemini")
     language = request.data.get("language", "en")
 
-    if not chat_id:
+    if not chat_id or not content:
         return Response({"error": "Chat ID was not provided."}, status=400)
 
     if not content:
