@@ -41,6 +41,68 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
+// Token refresh
+const refreshAuthToken = async (): Promise<string | null> => {
+  try {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) return null;
+
+    const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem('accessToken', data.access);
+      return data.access;
+    } else {
+      // Refresh token is invalid, clear all tokens
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      return null;
+    }
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    return null;
+  }
+};
+
+// automatic token refresh
+export const apiCall = async (url: string, options: RequestInit = {}) => {
+  let token = localStorage.getItem('accessToken');
+
+  const makeRequest = async (authToken: string | null) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+      ...(authToken && { Authorization: `Bearer ${authToken}` }),
+    };
+
+    return fetch(url, {
+      ...options,
+      headers,
+    });
+  };
+
+  let response = await makeRequest(token);
+
+  // 401, try to refresh the token
+  if (response.status === 401 && token) {
+    const newToken = await refreshAuthToken();
+    if (newToken) {
+      response = await makeRequest(newToken);
+    }
+  }
+
+  return response;
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -60,11 +122,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/auth/profile/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiCall(`${API_BASE_URL}/auth/profile/`);
 
       if (response.ok) {
         const userData = await response.json();
@@ -74,8 +132,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
       }
-    } catch (error) {
-      console.error('Auth check failed:', error);
+    } catch {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
     } finally {
@@ -180,12 +237,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           body: JSON.stringify({ refresh: refreshToken }),
         });
       }
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch {
+      //
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       setUser(null);
+      // Redirect to login after logout
+      window.location.href = '/login';
     }
   };
 

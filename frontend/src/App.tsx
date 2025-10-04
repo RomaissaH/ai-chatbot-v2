@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import ChatPage from './pages/ChatPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { TranslationProvider } from './i18n/TranslationContext';
 
 function App() {
@@ -21,8 +22,15 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
 
-          {/* Chat Routes */}
-          <Route path="/chat" element={<ChatLayout />}>
+          {/* Chat Routes - Protected */}
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <ChatLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<ChatPage />} />
             <Route path=":chat_uid" element={<ChatPage />} />
             <Route path="new" element={<ChatPage />} />

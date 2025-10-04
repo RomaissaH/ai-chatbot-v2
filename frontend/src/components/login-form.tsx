@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 
@@ -15,6 +15,7 @@ export function LoginForm({
   const { t } = useTranslation();
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -41,7 +42,9 @@ export function LoginForm({
     const result = await login(formData.email, formData.password);
 
     if (result.success) {
-      navigate('/chat');
+      // Redirect to the page trying to access
+      const from = location.state?.from?.pathname || '/chat';
+      navigate(from, { replace: true });
     } else {
       setError(result.error || 'Login failed');
     }
