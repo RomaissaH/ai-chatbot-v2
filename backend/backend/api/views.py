@@ -21,6 +21,9 @@ from datetime import timedelta
 from django.conf import settings
 import logging
 
+from api.services.gemini_provider2 import GeminiProvider
+
+
 logger = logging.getLogger(__name__)
 
 # Authentication Views
@@ -307,3 +310,20 @@ def delete_chat(request, pk):
     chat = get_object_or_404(Chat, id=pk, user=request.user)
     chat.delete()
     return Response({'message': 'Chat deleted successfully'}, status=204)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])  # Allow testing without auth
+def chat_with_gemini(request):
+    """
+    Simple endpoint to send a message to Gemini AI
+    """
+    message = request.data.get("message", "")
+    if not message:
+        return Response({"error": "Message is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    gemini = GeminiProvider()  # default model
+    reply = gemini.generate_response(message)
+
+    return Response({
+        "reply": reply
+    })

@@ -57,3 +57,4 @@ Thumbs.db # Windows
 .env # Environment variables
 
 backend/backend/backend/.env
+backend/backend/.env
