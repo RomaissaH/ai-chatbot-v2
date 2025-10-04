@@ -159,6 +159,12 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-load_dotenv()  # load .env file
+# Load environment variables
+load_dotenv()
+
+# AI Provider API Keys
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 

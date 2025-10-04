@@ -24,7 +24,35 @@ dist-ssr
 *.sw?
 
 
-.env*
+# Python
+*.pyc
+__pycache__/
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+.pytest_cache/
+htmlcov/
+
+# Django-specific
+*.log
+*.pot
 db.sqlite3
-__pycache__
-*.sqlite3
+local_settings.py
+media/
+static_collected/ # Or whatever your COLLECTSTATIC_DIRS is set to
+migrations/00*.py # Consider ignoring auto-generated migration files after initial commit
+
+# IDE and OS specific
+.idea/ # PyCharm
+.vscode/ # VS Code
+.DS_Store # macOS
+Thumbs.db # Windows
+
+# Other
+.env # Environment variables
+

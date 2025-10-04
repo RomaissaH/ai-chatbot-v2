@@ -19,5 +19,4 @@ class ChatAdmin(admin.ModelAdmin):
 
 @admin.register(ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
-    models = ChatMessage 
     list_display = ("id", "role", "content", "created_at")
