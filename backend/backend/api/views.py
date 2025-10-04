@@ -175,11 +175,6 @@ def prompt_gpt(request):
         model_type = request.data.get("model_type", "gemini")
         language = request.data.get("language", "en")
 
-
-    if not chat_id or not content:
-        return Response({"error": "Chat ID was not provided."}, status=400)
-
-
         # Basic validation first
         if not chat_id:
             return Response({'error': 'Chat ID is required.'}, status=400)

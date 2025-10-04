@@ -20,17 +20,11 @@ class GeminiProvider(AIProvider):
         self.model = genai.GenerativeModel(model_name)
     
     @classmethod
-    def create_instance(cls, model_name: str = "gemini"):
+    def create_instance(cls, model_name: str = "gemini-2.5-flash"):
         """Create provider instance with API key from settings"""
         api_key = settings.GEMINI_API_KEY
-        # Map model names to actual Gemini model names
-        # For free tier, use 'gemini-2.5-flash' which is available in v1beta
-        model_mapping = {
-            'gemini': 'gemini-2.5-flash',  # Free tier model available in v1beta
-            'gemini-pro': 'gemini-2.5-flash',
-            'gemini-2.5-flash': 'gemini-2.5-flash',
-        }
-        actual_model = model_mapping.get(model_name, 'gemini-2.5-flash')
+        # Only use the free tier model
+        actual_model = 'gemini-2.5-flash'
         logger.info(f"Creating Gemini provider with model: {actual_model}")
         return cls(api_key, actual_model)
     
@@ -119,4 +113,4 @@ class GeminiProvider(AIProvider):
     
     @property
     def supported_models(self) -> List[str]:
-        return ["gemini-2.5-flash"]  # Free tier model available in v1beta
+        return ["gemini-2.5-flash"]
